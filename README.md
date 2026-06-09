@@ -1,9 +1,10 @@
-# Agentic Fantasy League Skills
+# Agentic Fantasy League Daily-Core Skills
 
-This package targets the current Participant Portal submission shape for the AI
-Agent Fantasy World Cup.
+This package targets the current Participant Portal daily submission shape for
+the AI Agent Fantasy World Cup.
 
-The full ZIP contains the required package root:
+Use `dist/agentic-fantasy-league-daily-core.zip` for league-stage daily
+submissions. It contains the package root expected by the portal:
 
 ```text
 README.md
@@ -14,19 +15,29 @@ skills/
     SKILL.md
   explain-strategy/
     SKILL.md
-  build-bracket/
-    SKILL.md
-  validate-submission/
-    SKILL.md
 ```
 
-The daily-core ZIP mirrors the official smoke-test package more tightly and
-contains only `pick-fantasy-xi`, `choose-risk-play`, and `explain-strategy`.
+The daily-core package intentionally excludes bracket and validation helper
+skills unless the portal confirms extra skills are accepted.
 
 The submitted skills are Markdown-only. They are scoped to official tournament
 files, provided answer schemas, and valid official IDs.
 
 The package is designed to work as a one-time accepted submission. It should
 adapt each run from the portal-provided board, schemas, players, teams,
-matches, claims, standings, and any optional package references, without needing
-daily skill edits.
+matches, claims, and standings without needing daily skill edits.
+
+Daily answers should include exactly these top-level fields:
+
+```text
+team_id
+matchday_id
+fantasy_xi
+risk_play
+strategy
+```
+
+Use `risk_play: null` when skipping Risk Play. The tournament computes all Risk
+Play stakes from the claim category and current team points; the submitted JSON
+must not include stake, points, percentages, labels, or explanations inside
+`risk_play`. Tournament teams start with 50 points under the current rules.

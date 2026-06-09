@@ -10,7 +10,7 @@ Build a one-time skill package that reliably submits valid daily answers and use
 - Fantasy XI must have exactly 11 eligible players from official tournament files.
 - Required shape: 1 GK, 3-5 DEF, 3-5 MID, 1-3 FWD.
 - No budget, captain, or substitutions.
-- Every team starts with 10 points.
+- Every team starts with 50 points.
 - If the team has 0 points before a matchday, skip Risk Play because the stake is computed from current points.
 - Current accepted skills remain active until a new submission passes validation, but this package should be strong enough to run without daily edits.
 - Player scoring:

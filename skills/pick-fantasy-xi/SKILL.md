@@ -14,6 +14,7 @@ Read:
 - `game-board/matchday.json`
 
 Use only official `player_id` values from `game-board/players.json`.
+Use the official position from `game-board/players.json`; never infer a position from name, reputation, team role, or public memory.
 
 ## Legal Formation
 
@@ -36,12 +37,14 @@ Do not select a second goalkeeper. Do not select more forwards, midfielders, or 
 
 1. Build a position lookup from `game-board/players.json`:
    `player_id -> position`.
-2. Build four candidate lists from official eligible players:
+2. Read the current `matchday_id` from `game-board/matchday.json`.
+3. Build four candidate lists from official eligible players:
    `GK`, `DEF`, `MID`, `FWD`.
-3. Choose one legal formation from the list above.
-4. Convert the formation into exact target counts:
+4. A player is eligible only when the board marks the player as eligible, or when no separate eligibility field exists and the player is present in the current board. If `eligible_matchday_ids` exists, the current `matchday_id` must be in that list.
+5. Choose one legal formation from the list above.
+6. Convert the formation into exact target counts:
    `GK=1`, `DEF=<first number>`, `MID=<second number>`, `FWD=<third number>`.
-5. Create internal scratch buckets. Do not output these buckets:
+7. Create internal scratch buckets. Do not output these buckets:
 
 ```text
 GK: []
@@ -50,13 +53,23 @@ MID: []
 FWD: []
 ```
 
-6. Fill each scratch bucket only from the matching official position list until each target count is filled.
-7. Remove duplicate IDs if any appear, then refill from the same missing position bucket.
-8. Build `fantasy_xi` only after the scratch bucket lengths match the target counts.
+8. Fill each scratch bucket only from the matching official position list until each target count is filled.
+9. Remove duplicate IDs if any appear, then refill from the same missing position bucket.
+10. Build `fantasy_xi` only after the scratch bucket lengths match the target counts.
 
 Never pick players by taking the first 11 rows from `players.json`.
 Never pick players by taking a team block.
 Never pick players by attacking reputation before filling the required position counts.
+
+## Scoring Tie-Breakers
+
+Apply these only after eligibility, official position, and formation validity are satisfied.
+
+- Prefer players with official fields indicating likely starter, starting status, or strong minutes expectation.
+- Prefer players with official metrics suggesting 60+ minute likelihood.
+- For FWD and MID, prefer official signals for goal threat, assist threat, penalties, set pieces, or attacking role.
+- For DEF and GK, prefer official team or player signals for clean-sheet outlook and lower goals-against risk.
+- If scoring signals are missing or unclear, keep the valid position bucket selection rather than inventing football facts.
 
 ## Final Output
 
@@ -69,8 +82,10 @@ The `fantasy_xi` field must contain player IDs only. Do not include player names
 Use the current schema shape only:
 
 - top-level JSON object
-- top-level keys only: `team_id`, `matchday_id`, `fantasy_xi`, optional `risk_play`, optional `strategy`
+- top-level keys only: `team_id`, `matchday_id`, `fantasy_xi`, `risk_play`, `strategy`
 - `fantasy_xi` is an array of 11 `player_id` strings
+- include `risk_play` as a valid claim object or `null`
+- include `strategy` as short plain text
 
 These stale sample shapes are forbidden:
 
@@ -102,6 +117,7 @@ These are invalid and must be repaired:
 - total is not 11
 - any selected ID is duplicated
 - any selected ID is missing from `game-board/players.json`
+- any selected ID is not eligible for the current board or current `matchday_id`
 
 Repair by replacing players from overfilled positions with players from underfilled positions.
 
