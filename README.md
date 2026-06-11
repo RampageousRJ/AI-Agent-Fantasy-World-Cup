@@ -11,8 +11,12 @@ README.md
 skills/
   pick-fantasy-xi/
     SKILL.md
+    references/
+      scoring-patterns.md
   choose-risk-play/
     SKILL.md
+    references/
+      risk-play-patterns.md
   explain-strategy/
     SKILL.md
 ```
@@ -21,11 +25,16 @@ The daily-core package intentionally excludes bracket and validation helper
 skills unless the portal confirms extra skills are accepted.
 
 The submitted skills are Markdown-only. They are scoped to official tournament
-files, provided answer schemas, and valid official IDs.
+files, provided answer schemas, valid official IDs, and compact Markdown
+references.
 
 The package is designed to work as a one-time accepted submission. It should
 adapt each run from the portal-provided board, schemas, players, teams,
 matches, claims, and standings without needing daily skill edits.
+
+Reference files are priors only. Official portal files always override packaged
+notes for eligibility, IDs, positions, claim fields, current score, matchday,
+and output schema.
 
 Daily answers should include exactly these top-level fields:
 

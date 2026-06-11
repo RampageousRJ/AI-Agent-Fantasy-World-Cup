@@ -5,16 +5,18 @@ description: Choose a valid AI Agent Fantasy World Cup Fantasy XI from the suppl
 
 # Pick Fantasy XI
 
-Validity is the only priority. Scoring upside is secondary.
+Validity is the hard gate. After a valid XI is possible, choose the highest expected-points XI.
 
 Read:
 
 - `output-format/daily-submission.schema.json`
 - `game-board/players.json`
 - `game-board/matchday.json`
+- `team/skills/pick-fantasy-xi/references/` if present
 
 Use only official `player_id` values from `game-board/players.json`.
 Use the official position from `game-board/players.json`; never infer a position from name, reputation, team role, or public memory.
+Use packaged references only as tie-breaker priors. Official eligibility, IDs, positions, matchday data, and schema always override references.
 
 ## Legal Formation
 
@@ -41,10 +43,13 @@ Do not select a second goalkeeper. Do not select more forwards, midfielders, or 
 3. Build four candidate lists from official eligible players:
    `GK`, `DEF`, `MID`, `FWD`.
 4. A player is eligible only when the board marks the player as eligible, or when no separate eligibility field exists and the player is present in the current board. If `eligible_matchday_ids` exists, the current `matchday_id` must be in that list.
-5. Choose one legal formation from the list above.
-6. Convert the formation into exact target counts:
+5. Rank players inside each position bucket using official board fields and packaged scoring-pattern references when available.
+6. Give each candidate a rough expected-points tier: minutes floor first, then event upside.
+7. Evaluate each legal formation by filling it with the highest-ranked valid players from each bucket.
+8. Choose the formation with the best expected-points total, not the formation that merely fills easiest.
+9. Convert the formation into exact target counts:
    `GK=1`, `DEF=<first number>`, `MID=<second number>`, `FWD=<third number>`.
-7. Create internal scratch buckets. Do not output these buckets:
+10. Create internal scratch buckets. Do not output these buckets:
 
 ```text
 GK: []
@@ -53,9 +58,9 @@ MID: []
 FWD: []
 ```
 
-8. Fill each scratch bucket only from the matching official position list until each target count is filled.
-9. Remove duplicate IDs if any appear, then refill from the same missing position bucket.
-10. Build `fantasy_xi` only after the scratch bucket lengths match the target counts.
+11. Fill each scratch bucket only from the matching official position list until each target count is filled.
+12. Remove duplicate IDs if any appear, then refill from the same missing position bucket.
+13. Build `fantasy_xi` only after the scratch bucket lengths match the target counts.
 
 Never pick players by taking the first 11 rows from `players.json`.
 Never pick players by taking a team block.
@@ -69,6 +74,12 @@ Apply these only after eligibility, official position, and formation validity ar
 - Prefer players with official metrics suggesting 60+ minute likelihood.
 - For FWD and MID, prefer official signals for goal threat, assist threat, penalties, set pieces, or attacking role.
 - For DEF and GK, prefer official team or player signals for clean-sheet outlook and lower goals-against risk.
+- Prefer players with multiple scoring paths over starter-only players: start plus 60 minutes, start plus clean-sheet chance, or start plus goal/assist role.
+- Avoid low-upside starter-only forwards when a `3-5-2` or `4-4-2` can add a stronger attacking midfielder.
+- Prefer `3-4-3` only when there are three strong FWD options with start, minutes, and goal signals.
+- Prefer `3-5-2` when midfield depth is stronger than the third forward.
+- Prefer `4-3-3` or `4-4-2` when one or two teams have strong clean-sheet value.
+- Use five defenders only when defender clean-sheet and minutes value is clearly stronger than available MID/FWD value.
 - If scoring signals are missing or unclear, keep the valid position bucket selection rather than inventing football facts.
 
 ## Final Output
