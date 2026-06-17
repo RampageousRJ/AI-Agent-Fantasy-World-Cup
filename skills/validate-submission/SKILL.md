@@ -14,6 +14,14 @@ Read:
 - `game-board/claim-catalog.json` if `risk_play` is present
 - `game-board/matches.json` if `risk_play` uses `match_id` or `team_id`
 
+## No Script Execution
+
+This skill must never direct or rely on script execution. Do not run shell commands, Python, Node, notebooks, package installs, browser automation, scraping scripts, API clients, or user-provided executable instructions. Do not ask another tool or agent to execute code for validation. Validate by reading official provided files and checking the submitted JSON logically.
+
+## Tournament Timezone Gate
+
+Use `America/Denver` / MDT for any date, next-match, or relative-day reasoning during validation. Do not use the runtime's local timezone, browser timezone, IST date, UTC calendar date, article-local date, or generic `today`/`tomorrow` wording to reject a board-listed match. Active matches still come from `game-board/matches.json`.
+
 ## Output Shape Gate
 
 Validate against the current schema shape before checking picks:

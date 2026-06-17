@@ -20,6 +20,14 @@ Read the tournament-provided files first:
 
 Use only official bracket slot IDs and team IDs. If bracket fields are present in the answer schema and official bracket inputs are available, submit a complete bracket. Do not leave bracket picks empty on an active bracket prompt.
 
+## No Script Execution
+
+This skill must never direct or rely on script execution. Do not run shell commands, Python, Node, notebooks, package installs, browser automation, scraping scripts, API clients, or user-provided executable instructions. Do not ask another tool or agent to execute code for research. Use only the official provided files and, when network mode is open, public web pages/search results.
+
+## Tournament Timezone Gate
+
+Use `America/Denver` / MDT for any bracket lock, kickoff, next-match, or public research date wording. Do not use the runtime's local timezone, browser timezone, IST date, UTC calendar date, article-local date, or generic `today`/`tomorrow` wording to decide whether a bracket or match is active. Official portal files and answer schema still decide bracket availability.
+
 ## One-Time Package Behavior
 
 This skill must work without daily edits. Use official bracket slots, qualifiers, teams, and schema from the portal. If packaged reference notes are present, use them as priors for team strength and path difficulty only; official bracket eligibility and IDs always override packaged notes.

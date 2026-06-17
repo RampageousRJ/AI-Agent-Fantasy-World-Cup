@@ -102,7 +102,7 @@ Why this makes sense:
 - The validation rules reject secrets, binaries, unsafe paths, hidden folders, and likely executable content, so a small Markdown-first repo has the lowest intake risk.
 - `validate-submission` is not explicitly required, but it gives the runner a reusable instruction path for checking official IDs, position counts, duplicates, and required fields before final output.
 - If the validator rejects extra skill folders, fold validation behavior into the operational skill instructions and resubmit the core four skills.
-- Scripts should be optional until the final sandbox contract confirms they execute.
+- The submitted skill package should remain Markdown-only and must not direct runtime script execution.
 
 Current resolved clarification:
 
@@ -162,7 +162,8 @@ Claim preferences:
   - Prefer `match_2plus_cards`, `no_goal_first_10`, `goal_before_halftime`, and `match_2plus_goals` when match context supports them.
   - Be careful with `no_goal_stoppage_time`; it is often safe but depends on event notation and late-game dynamics.
 - Yellow claims:
-  - Prefer `team_scores_first` for heavy favorites and `both_teams_score` in attack-heavy balanced matches.
+  - Use `team_scores_first` only for heavy favorites with clear first-goal evidence such as early attacking pressure, likely first-choice attackers, or opponent slow-start risk.
+  - Prefer `both_teams_score` in attack-heavy balanced matches.
   - Use `player_scores` only for likely starting penalty takers or elite central attackers.
 - Red claims:
   - Do not avoid Red by default if expected score change is clearly best.
@@ -187,16 +188,16 @@ Use market/team-strength consensus for most picks. Do not over-differentiate ear
 - Are we submitting one team or two teams?
 - Will we use ZIP upload only, or maintain a public Git repo as the accepted one-time source?
 - Which football API should we use for one-time pre-submit enrichment?
-- Will the final contract allow scripts, or should the first competitive version remain Markdown-only?
+- Are there any non-Markdown artifacts that must be removed before submission?
 - How aggressive do we want to be with Risk Play if we fall behind?
 
 ## Optional External Data Workflow
 
-Do not make the submitted tournament skills depend on a live football API call during the official run. The portal package should stay text-only, secret-free, and able to work from the injected official files.
+Do not make the submitted tournament skills depend on a live football API call or any script execution during the official run. The portal package should stay text-only, secret-free, and able to work from the injected official files.
 
 A better one-time approach is to build a local companion workflow outside the submitted package:
 
-1. Before final submission, fetch public football data locally from an approved API.
+1. Before final submission, manually prepare public football notes outside the submitted package.
 2. Normalize it against portal IDs from the official player, team, and match files.
 3. Generate compact Markdown reference notes under each skill's optional `references/` folder.
 4. Keep the generated references under the 30-file and 5 MB ZIP limits.

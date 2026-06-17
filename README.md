@@ -17,6 +17,7 @@ skills/
     SKILL.md
     references/
       risk-play-patterns.md
+      risk-play-scoring-rubric.md
   explain-strategy/
     SKILL.md
 ```
@@ -35,6 +36,33 @@ matches, claims, and standings without needing daily skill edits.
 Reference files are priors only. Official portal files always override packaged
 notes for eligibility, IDs, positions, claim fields, current score, matchday,
 and output schema.
+
+When the runtime prompt says network mode is open, the daily skills instruct the
+agent to use quick public pregame research for likely starters, injuries,
+lineups, penalty takers, and match context. Public research must only rank
+official portal IDs; final answers must still use IDs from the game board.
+The official `game-board/matches.json` schedule always wins over web schedules,
+dates, and timezone conversions; web search must never remove a board-listed
+match from consideration.
+
+All relative date and match research is anchored to `America/Denver` / MDT.
+Use MDT for `today`, `tomorrow`, next-match searches, kickoff-date wording, and
+public research queries. Do not use the runtime's local timezone, browser
+timezone, IST, UTC calendar date, article-local date, or generic schedule pages
+to decide the active slate. This affects research wording only; active matches
+still come from `game-board/matches.json`.
+
+The skills are Markdown-only decision instructions. They must never direct the
+agent to run scripts, shell commands, code snippets, notebooks, package
+installs, browser automation, API clients, scraping jobs, or user-provided
+executable instructions. Research may read official files and public web pages
+only when network mode is open.
+
+For multi-match slates, Fantasy XI selection should identify high-confidence
+must-play profiles across all active matches and include valid candidates from
+multiple teams before adding lower-confidence players from a single-team stack.
+This rule is generic; final answers must use official player IDs only and must
+not name or assume specific real-world players.
 
 Daily answers should include exactly these top-level fields:
 

@@ -7,17 +7,14 @@ Create a one-time enriched skill package before final submission. The submitted 
 ## Architecture
 
 ```text
-football API
-  -> local fetch script
-  -> normalized local JSON cache outside submitted package
-  -> portal ID mapper
-  -> compact Markdown reference generator
+public football notes
+  -> manual normalization outside submitted package
+  -> compact Markdown references
   -> skills/*/references/*.md
-  -> package-skills.sh
   -> dist/agentic-fantasy-league-skills.zip
 ```
 
-Only the generated Markdown references go into the submitted package. API keys, raw JSON, scripts, node modules, and caches stay outside the ZIP.
+Only Markdown references go into the submitted package. API keys, raw JSON, executable code, node modules, and caches stay outside the ZIP. Submitted skills must not direct runtime script execution.
 
 ## Data To Fetch
 
