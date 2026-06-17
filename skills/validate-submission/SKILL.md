@@ -7,6 +7,8 @@ description: Validate Fantasy XI, Risk Play, and strategy against official files
 
 Use this skill before final output.
 
+Hard output invariant: never emit a final answer unless `fantasy_xi` recomputes to exactly 11 IDs with exactly 1 GK, 3-5 DEF, 3-5 MID, and 1-3 FWD from official `players.json` positions.
+
 Read:
 
 - `output-format/daily-submission.schema.json`
@@ -67,7 +69,15 @@ Reject and repair if:
 
 Do not trust the strategy text for formation. Only the computed counts from `players.json` matter.
 
-If the counts are wrong, replace IDs from overfilled positions with official eligible IDs from underfilled positions. Validate again after repair.
+If the counts are wrong, rebuild or refill the Fantasy XI from locked official position buckets. Do not repair from a combined all-player ranking. Validate again after repair.
+
+Goalkeeper repair is mandatory and specific:
+
+- If there are 0 GK, add the best valid goalkeeper from the official `GK` bucket and remove one player from an overfilled outfield position.
+- If there are 2 or more GK, keep only the highest-ranked valid likely starting GK in the `GK` bucket and replace every extra GK with valid players from the missing outfield position buckets.
+- Do not allow the scoring engine to exclude extra GK. Any over-limit exclusion means the submitted XI was invalid and must be rebuilt.
+
+Final validation must recompute counts from `players.json` after every repair. Strategy text, player reputation, or scoring-preview points never override computed official positions.
 
 ## Risk Play Gate
 
@@ -81,7 +91,7 @@ If `risk_play` is present:
 - if both `match_id` and `team_id` appear, the team must be in that match
 - remove labels, risk type, stake values, predictions, scores, and explanations
 
-If a Risk Play field fails validation, repair it or choose the next aggressive valid claim. Use `risk_play: null` only when no valid claim remains or the current score is 0.
+If a Risk Play field fails validation, repair it or choose the next valid claim. Use `risk_play: null` only when no valid claim remains or the current score is 0.
 
 ## Strategy Gate
 

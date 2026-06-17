@@ -8,7 +8,7 @@ FULL_STAGE_DIR="$DIST_DIR/full-package-root"
 CORE_STAGE_DIR="$DIST_DIR/daily-core-package-root"
 FULL_OUTPUT_ZIP="$DIST_DIR/agentic-fantasy-league-skills.zip"
 CORE_OUTPUT_ZIP="$DIST_DIR/agentic-fantasy-league-daily-core.zip"
-CORE_SKILLS=(pick-fantasy-xi choose-risk-play explain-strategy)
+CORE_SKILLS=(pick-fantasy-xi choose-risk-play validate-submission explain-strategy)
 
 export COPYFILE_DISABLE=1
 

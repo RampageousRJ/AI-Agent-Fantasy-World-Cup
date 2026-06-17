@@ -18,12 +18,15 @@ skills/
     references/
       risk-play-patterns.md
       risk-play-scoring-rubric.md
+  validate-submission/
+    SKILL.md
   explain-strategy/
     SKILL.md
 ```
 
-The daily-core package intentionally excludes bracket and validation helper
-skills unless the portal confirms extra skills are accepted.
+The daily-core package intentionally excludes bracket helpers. It includes
+`validate-submission` because final JSON validation must be available in the
+same artifact as the daily picker.
 
 The submitted skills are Markdown-only. They are scoped to official tournament
 files, provided answer schemas, valid official IDs, and compact Markdown

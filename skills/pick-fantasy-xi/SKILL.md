@@ -7,6 +7,8 @@ description: Choose a valid AI Agent Fantasy World Cup Fantasy XI from the suppl
 
 Validity is the hard gate. After a valid XI is possible, choose higher ceiling over a merely safe starter-only XI.
 
+Hard output invariant: the final `fantasy_xi` must contain exactly 11 IDs and exactly one goalkeeper. If the selected IDs contain 0 GK, 2 GK, 3 GK, or any other non-1 GK count, the answer is invalid and must be rebuilt before output. Scoring may exclude over-limit players, but that does not make the submission acceptable.
+
 Read:
 
 - `output-format/daily-submission.schema.json`
@@ -113,9 +115,19 @@ Choose one legal formation before selecting player IDs:
 
 The first number is DEF, the second is MID, and the third is FWD. Every formation also has exactly 1 GK.
 
-Do not select a second goalkeeper. Do not select more forwards, midfielders, or defenders than the chosen formation allows.
+Do not select a second goalkeeper. Do not select a goalkeeper in an outfield slot. Do not select more forwards, midfielders, or defenders than the chosen formation allows.
+
+The final `fantasy_xi` must always be the concatenation of these locked buckets:
+
+```text
+1 GK + formation DEF + formation MID + formation FWD
+```
+
+Never build the XI by sorting all players together and taking the top 11. That can accidentally include extra goalkeepers or overfill a position.
 
 ## Build Process
+
+This process is quota-based. Do not create a single ranked list of all players.
 
 1. Build a position lookup from `game-board/players.json`:
    `player_id -> position`.
@@ -125,14 +137,16 @@ Do not select a second goalkeeper. Do not select more forwards, midfielders, or 
 5. Build four candidate lists from official eligible players whose `team_id` is in the active team set:
    `GK`, `DEF`, `MID`, `FWD`.
 6. A player is eligible only when the board marks the player as eligible, or when no separate eligibility field exists and the player is present in the current board. If `eligible_matchday_ids` exists, the current `matchday_id` must be in that list.
-7. Rank players inside each position bucket using pregame research first, then the ceiling-after-floor rules below.
-8. Mark must-play candidates across all active matches before filling any team stack.
-9. Evaluate every legal formation by filling it with the best valid players from each bucket.
-10. Choose the formation with the best mix of likely starts, 60-minute floor, goal/assist upside, clean-sheet upside, and multi-team must-play coverage.
-11. When two legal XIs look similar, choose the one with stronger multi-team must-play coverage, then the higher-ceiling XI.
-12. Convert the formation into exact target counts:
+7. If any bucket contains a player whose official position does not match the bucket name, move or remove that player before ranking.
+8. Rank players inside each position bucket using pregame research first, then the ceiling-after-floor rules below.
+9. Mark must-play candidates across all active matches before filling any team stack.
+10. Evaluate every legal formation by filling it with the best valid players from each position bucket, never from a combined all-player ranking.
+11. Discard any formation immediately if the bucket counts cannot satisfy its exact quotas.
+12. Choose the formation with the best mix of likely starts, 60-minute floor, goal/assist upside, clean-sheet upside, and multi-team must-play coverage.
+13. When two legal XIs look similar, choose the one with stronger multi-team must-play coverage, then the higher-ceiling XI.
+14. Convert the formation into exact target counts:
    `GK=1`, `DEF=<first number>`, `MID=<second number>`, `FWD=<third number>`.
-13. Create internal scratch buckets. Do not output these buckets:
+15. Create internal scratch buckets. Do not output these buckets:
 
 ```text
 GK: []
@@ -141,15 +155,20 @@ MID: []
 FWD: []
 ```
 
-14. Fill each scratch bucket only from the matching official position list until each target count is filled.
-15. Remove duplicate IDs if any appear, then refill from the same missing position bucket.
-16. Build `fantasy_xi` only after the scratch bucket lengths match the target counts.
+16. Fill `GK` with exactly one ID from the official `GK` bucket.
+17. Fill `DEF`, `MID`, and `FWD` only from their matching official position buckets until each target count is filled.
+18. If a player from the wrong official position appears in any scratch bucket, remove that player and refill from the bucket's matching official position list.
+19. Remove duplicate IDs if any appear, then refill from the same missing position bucket.
+20. Build `fantasy_xi` only by concatenating `GK + DEF + MID + FWD` after the scratch bucket lengths match the target counts.
+21. Recompute counts from `game-board/players.json`. If the counts do not exactly match the chosen formation, discard the XI and repeat from step 10. Do not patch from an all-player list.
 
 Never pick players by taking the first 11 rows from `players.json`.
+Never pick players by taking the top 11 from a cross-position ranking.
 Never pick players by taking a team block.
 Never pick a full XI from one national team.
 Never pick a full XI from one match when multiple matches are on the board.
 Never pick players by attacking reputation before filling the required position counts.
+Never keep extra goalkeepers because they appear to have strong fantasy value. Only one GK can count.
 
 ## Scoring Tie-Breakers
 
@@ -228,6 +247,8 @@ If any stale sample shape appears, discard it and rebuild from `output-format/da
 
 Before final output, compute the total and position counts from the selected IDs and the official position lookup.
 
+This is a submit-or-rebuild gate, not a scoring preference. If it fails, discard the current `fantasy_xi` and rebuild from locked position buckets. Do not rely on the tournament scorer to exclude over-limit players.
+
 The final answer is forbidden unless:
 
 - `total` is 11
@@ -246,13 +267,14 @@ These are invalid and must be repaired:
 - any selected ID is missing from `game-board/players.json`
 - any selected ID is not eligible for the current board or current `matchday_id`
 - any selected player's `team_id` is not one of the active teams from `game-board/matches.json`
+- the scoring preview would exclude any selected player for position over-limit
 
-Repair by replacing players from overfilled positions with players from underfilled positions.
+Repair only by rebuilding or refilling locked position buckets from official matching positions.
 
 Examples:
 
-- If there are 2 GK, remove one GK and add one player from the missing outfield bucket.
-- If there are 4 FWD, remove two FWD and add two players from missing DEF or MID buckets.
-- If there are only 2 DEF, add two DEF and remove players from overfilled buckets.
+- If there are 2 or more GK, the XI is invalid. Keep only the highest-ranked likely starting GK in the `GK` bucket, then refill missing outfield slots from the locked `DEF`, `MID`, or `FWD` buckets.
+- If there are 4 FWD, the XI is invalid. Rebuild using a formation with at most 3 FWD.
+- If there are only 2 DEF, the XI is invalid. Rebuild using a formation and `DEF` bucket that supplies at least 3 DEF.
 
-Run this gate after building the final JSON and immediately before answering. If any repair is made, run this gate again.
+Run this gate after building the final JSON and immediately before answering. If any repair is made, run this gate again from the position lookup. Do not output until the recomputed counts are valid.

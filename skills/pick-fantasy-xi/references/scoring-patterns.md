@@ -2,6 +2,8 @@
 
 Use these patterns as tie-breakers after the official board confirms player ID, eligibility, and position. Do not submit names or notes from this file.
 
+These patterns never override formation validity. The final XI must contain exactly one official goalkeeper. If goalkeeper value looks strong, still choose only the best valid GK and spend the remaining 10 slots on legal outfield positions.
+
 ## Main Lesson
 
 The safest scoring base is minutes. A likely starter with a 60-minute path is often better than a more famous player with uncertain minutes.
@@ -43,7 +45,7 @@ Research priority:
 4. recent starter role
 5. reputation or historical role
 
-Never pick a goalkeeper without the best available starter evidence.
+Never pick a goalkeeper without the best available starter evidence. Never pick more than one goalkeeper.
 
 Review every fixture before picking the XI. A strong preview for one team is not enough; compare it with the best players from all other matches.
 
